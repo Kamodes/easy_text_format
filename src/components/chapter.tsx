@@ -4,10 +4,12 @@ import { AiFillPlusCircle } from "react-icons/ai";
 export const Chapter = ({
   children,
   onClick,
+  onChange,
   className,
 }: {
   children: React.ReactNode;
   onClick: any;
+  onChange: any;
   className?: string;
 }) => {
   return (
@@ -17,6 +19,9 @@ export const Chapter = ({
           type="text"
           placeholder="章のタイトルを入力してください"
           className="input input-bordered w-full max-w-xs border"
+          onChange={(e) => {
+            onChange(e);
+          }}
         />
         <textarea
           className="textarea textarea-bordered mt-2 max-w-4xl w-full"

@@ -1,13 +1,49 @@
 "use client";
 import { Chapter } from "@/components/chapter";
 import { Section } from "@/components/section";
+import {
+  Document,
+  StyleSheet,
+  Page as PdfPage,
+  View,
+  Text,
+  PDFViewer,
+} from "@react-pdf/renderer";
 import { useState } from "react";
 
 export default function Page() {
-  const [section, setSection] = useState<number[]>([1]);
+  type sectionType = { title: string; text: string };
+  const [chapters, setChapters] = useState<
+    { title: string; text: string; section: sectionType[] }[]
+  >([{ title: "", text: "", section: [{ title: "", text: "" }] }]);
+  const styles = StyleSheet.create({
+    page: {
+      flexDirection: "row",
+      backgroundColor: "#E4E4E4",
+    },
+    section: {
+      margin: 10,
+      padding: 10,
+      flexGrow: 1,
+    },
+  });
+  const MyDocument = () => {
+    return (
+      <Document>
+        <PdfPage size="A4" style={styles.page}>
+          <View style={styles.section}>
+            <Text>Section #1</Text>
+          </View>
+          <View style={styles.section}>
+            <Text>Section #2</Text>
+          </View>
+        </PdfPage>
+      </Document>
+    );
+  };
   return (
     <div className="mx-4">
-      <h2 className="">文章作成</h2>
+      <h2>文章作成</h2>
       <p className="mt-6 border-b-2">文章のタイトル</p>
       <input
         type="text"
@@ -15,24 +51,42 @@ export default function Page() {
         className="input input-bordered w-full max-w-xs mt-10"
       />
       <div className="flex flex-col">
-        {section.map((chapter, idx) => {
+        {chapters.map((chapter, idx) => {
           return (
             <Chapter
               key={idx}
               onClick={() => {
-                setSection([...section, 0]);
+                setChapters([
+                  ...chapters,
+                  { title: "", text: "", section: [] },
+                ]);
+              }}
+              onChange={(e: any) => {
+                setChapters([
+                  ...chapters.slice(0, idx),
+                  { ...chapter, text: e.target.value },
+                  ...chapters.slice(idx + 1),
+                ]);
               }}
               className="mt-4"
             >
-              {[...Array(chapter)].map((_, index) => {
+              {chapter.section.map((sectionItem, index) => {
                 return (
                   <Section
                     key={index}
                     onClick={() => {
-                      setSection([
-                        ...section.slice(0, idx),
-                        section[idx] + 1,
-                        ...section.slice(idx + 1),
+                      setChapters([
+                        ...chapters.slice(0, idx),
+                        {
+                          title: chapter.title,
+                          text: chapter.text,
+                          section: [
+                            ...chapter.section.slice(0, index),
+                            { title: "", text: "" },
+                            ...chapter.section.slice(index + 1),
+                          ],
+                        },
+                        ...chapters.slice(idx + 1),
                       ]);
                     }}
                     className="mt-4"
@@ -43,6 +97,9 @@ export default function Page() {
           );
         })}
       </div>
+      <button className="btn" onClick={() => {}}>
+        PDFに出力する
+      </button>
     </div>
   );
 }
